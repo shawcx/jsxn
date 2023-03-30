@@ -83,13 +83,13 @@ class _Jsxn:
 # of _JsxnFactory in order to reduce the potential for any name collisions with
 # the names used by consumers of the library.
 class _Cache(dict):
-    def generate(self, _name_for_generated_class, *args, **kwds):
+    def generate(self, _name_for_jsxn_class, *args, **kwds):
         # Creation of jsxn classes accepts a variety of types when specifying
         # the schema of the class. This block derives the slots based on
         # the arguments passed in.
         inherit = [_Jsxn,]
-        if _name_for_generated_class in self:
-            inherit.append(self[_name_for_generated_class])
+        if _name_for_jsxn_class in self:
+            inherit.append(self[_name_for_jsxn_class])
 
         if not args:
             slots = kwds
@@ -105,10 +105,10 @@ class _Cache(dict):
             raise TypeError('Invalid type') from None
 
         # Create the derived jsxn class.
-        cls = type(_name_for_generated_class, tuple(inherit), {'__slots__':slots})
+        cls = type(_name_for_jsxn_class, tuple(inherit), {'__slots__':slots})
 
         # Cache the jsxn class.
-        self[_name_for_generated_class] = cls
+        self[_name_for_jsxn_class] = cls
 
         # Instantiate the class and return the instance.
         return cls(*args, **kwds)
