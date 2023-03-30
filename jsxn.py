@@ -56,6 +56,8 @@ class _Jsxn:
         elif isinstance(args, _Jsxn):
             for key,value in args:
                 setattr(self, key, value)
+        elif inspect.isclass(args):
+            pass
         elif not isinstance(args, list):
             raise TypeError('Invalid type') from None
 
@@ -99,8 +101,10 @@ class _Cache(dict):
             slots = json.loads(slots)
         if isinstance(slots, dict):
             slots = tuple(slots.keys())
-        elif isinstance(slots, _Jsxn):
+        elif hasattr(slots, '__slots__'):
             slots = slots.__slots__
+        elif hasattr(slots, '__annotations__'):
+            slots = tuple(slots.__annotations__.keys())
         elif not isinstance(slots, list):
             raise TypeError('Invalid type') from None
 
@@ -130,6 +134,7 @@ class _JsxnFactory:
                 og = _cache[name]
                 cls = type(name, (og,cls), {'__slots__':og.__slots__})
             _cache[name] = cls
+            _cache.generate(name, cls)
             return cls
 
         # If a string is passed in use that as the name.
