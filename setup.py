@@ -13,6 +13,7 @@ setup(
     license          = 'MIT',
     description      = 'Python Metaclass JSON library',
     long_description = open('README.md').read(),
+    long_description_content_type = 'text/markdown',
     url              = 'https://github.com/shawcx/jsnx',
     py_modules = ['jsxn'],
     classifiers=[
