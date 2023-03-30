@@ -89,3 +89,23 @@ class MachineClass:
 c = jsxn.computer(cpu='x86_64',cores=8,ram=8192,addr='192.168.1.1')
 c.ping()
 ```
+
+Class can also define the name of the fields via typing or slots.
+
+```python
+from jsxn import jsxn
+
+@jsxn
+class example1:
+    first : str
+    second : int
+    third : dict
+
+@jsxn
+class example2:
+    __slots__ = [
+        'first',
+        'second',
+        'third',
+        ]
+```
