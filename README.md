@@ -1,4 +1,4 @@
-jsnx
+jsxn
 ====
 
 jsxn is a Python library for JSON objects that use a strict schema. Designed for use with REST APIs that return lists of objects that all have the same attributes.

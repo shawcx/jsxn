@@ -62,7 +62,7 @@ class _Jsxn:
     def __setitem__(self, name, value):
         setattr(self, name, value)
 
-    # This is for passing jsnx instances to the dict constructor.
+    # This is for passing jsxn instances to the dict constructor.
     def __iter__(self):
         for attr in self.__slots__:
             yield((attr, getattr(self, attr)))
@@ -70,7 +70,7 @@ class _Jsxn:
     def __len__(self):
         return len(self.__slots__)
 
-    # Use JSON for string representations of the jsnx instance.
+    # Use JSON for string representations of the jsxn instance.
     def __str__(self):
         return json.dumps(dict(self))
 
@@ -98,10 +98,10 @@ class _Cache(dict):
         elif not isinstance(slots, list):
             raise TypeError('Invalid type') from None
 
-        # Create the derived jsnx class.
+        # Create the derived jsxn class.
         cls = type(name, (_Jsxn,), {'__slots__':slots})
 
-        # Cache the jsnx class.
+        # Cache the jsxn class.
         self[name] = cls
 
         # Instantiate the class and return the instance.
@@ -111,8 +111,8 @@ class _Cache(dict):
 _cache = _Cache()
 
 
-# _JsxnFactory manages the creation and access to jsnx classes. When a derived
-# class is accessed it will return the cached jsnx class. If the jsnx class has
+# _JsxnFactory manages the creation and access to jsxn classes. When a derived
+# class is accessed it will return the cached jsxn class. If the jsxn class has
 # not been defined it will return a curried _Cache.generate function with the
 # attribute name bound as the first argument
 class _JsxnFactory:
@@ -135,5 +135,5 @@ class _JsxnFactory:
         del _cache[name]
 
 
-# This is the way to access the jsnx library.
+# This is the way to access the jsxn library.
 jsxn = _JsxnFactory()

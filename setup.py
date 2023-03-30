@@ -14,7 +14,7 @@ setup(
     description      = 'Python Metaclass JSON library',
     long_description = open('README.md').read(),
     long_description_content_type = 'text/markdown',
-    url              = 'https://github.com/shawcx/jsnx',
+    url              = 'https://github.com/shawcx/jsxn',
     py_modules = ['jsxn'],
     classifiers=[
         'Development Status :: 4 - Beta',
