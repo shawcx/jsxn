@@ -67,3 +67,25 @@ print(empty)
 # {}
 # but it is not very useful...
 ```
+
+jsxn supports binding classes to generated types. This allows the creation of helper functions to perform actions with the underlying data.
+
+```python
+from jsxn import jsxn
+
+@jsxn
+class domain:
+    def save(self):
+        print('SAVE:', self)
+
+d = jsxn.domain({'name':'www.example.com'})
+d.save()
+
+@jsxn('computer')
+class MachineClass:
+    def ping(self):
+        print('PING:', self.addr)
+
+c = jsxn.computer(cpu='x86_64',cores=8,ram=8192,addr='192.168.1.1')
+c.ping()
+```
