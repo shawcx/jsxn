@@ -1,4 +1,6 @@
 *.pyc
 /build
 /dist
-*.egg-info
+/deb_dist
+/*.tar.gz
+/*.egg-info
