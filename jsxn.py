@@ -1,7 +1,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2023 Matthew Shaw
+# Copyright (c) 2023-2025 Matthew Shaw
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -48,8 +48,10 @@ class _Jsxn:
             args = kwds
         else:
             args = args[0]
+
         if isinstance(args, str):
             args = json.loads(args)
+
         if isinstance(args, dict):
             for key,value in args.items():
                 setattr(self, key, value)
@@ -85,20 +87,26 @@ class _Jsxn:
 # of _JsxnFactory in order to reduce the potential for any name collisions with
 # the names used by consumers of the library.
 class _Cache(dict):
-    def generate(self, _name_for_jsxn_class, *args, **kwds):
+    def _generate(self, _name_for_jsxn_class, *args, **kwds):
         # Creation of jsxn classes accepts a variety of types when specifying
         # the schema of the class. This block derives the slots based on
         # the arguments passed in.
+
         inherit = [_Jsxn,]
-        if _name_for_jsxn_class in self:
-            inherit.append(self[_name_for_jsxn_class])
 
         if not args:
             slots = kwds
         else:
+            if isinstance(args[0], type):
+                if not issubclass(args[0], _Jsxn):
+                    inherit.append(args[0])
+                else:
+                    inherit = [args[0],]
             slots = args[0]
+
         if isinstance(slots, str):
             slots = json.loads(slots)
+
         if isinstance(slots, dict):
             slots = tuple(slots.keys())
         elif hasattr(slots, '__slots__'):
@@ -113,7 +121,10 @@ class _Cache(dict):
 
         # Cache the jsxn class.
         self[_name_for_jsxn_class] = cls
+        return cls
 
+    def _instantiate(self, _name_for_jsxn_class, *args, **kwds):
+        cls = self._generate(_name_for_jsxn_class, *args, **kwds)
         # Instantiate the class and return the instance.
         return cls(*args, **kwds)
 
@@ -133,8 +144,7 @@ class _JsxnFactory:
             if name in _cache:
                 og = _cache[name]
                 cls = type(name, (og,cls), {'__slots__':og.__slots__})
-            _cache[name] = cls
-            _cache.generate(name, cls)
+            _cache._generate(name, cls)
             return cls
 
         # If a string is passed in use that as the name.
@@ -153,16 +163,17 @@ class _JsxnFactory:
         raise TypeError(arg)
 
     def __getattr__(self, name):
-        return self[name]
+        try:
+            self.__getattribute__(name)
+        except AttributeError:
+            return self[name]
 
     def __getitem__(self, name):
         try:
             cls = _cache[name]
-            if not issubclass(cls, _Jsxn):
-                raise KeyError(name)
             return cls
         except KeyError:
-            return functools.partial(_cache.generate, name)
+            return functools.partial(_cache._instantiate, name)
 
     def __delattr__(self, name):
         try:
