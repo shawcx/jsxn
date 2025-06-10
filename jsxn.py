@@ -63,6 +63,8 @@ class _Jsxn:
         elif not isinstance(args, list):
             raise TypeError('Invalid type') from None
 
+        return self
+
     # Support access attributes via indices.
     def __getitem__(self, name):
         return getattr(self, name)
@@ -127,6 +129,7 @@ class _Cache(dict):
         cls = self._generate(_name_for_jsxn_class, *args, **kwds)
         # Instantiate the class and return the instance.
         return cls(*args, **kwds)
+
 
 # Instantiate the cache dictionary.
 _cache = _Cache()
