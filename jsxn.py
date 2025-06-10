@@ -94,16 +94,16 @@ class _Cache(dict):
         # the schema of the class. This block derives the slots based on
         # the arguments passed in.
 
-        inherit = [_Jsxn,]
+        inherit = (_Jsxn,)
 
         if not args:
             slots = kwds
         else:
             if isinstance(args[0], type):
                 if not issubclass(args[0], _Jsxn):
-                    inherit.append(args[0])
+                    inherit = (args[0],_Jsxn)
                 else:
-                    inherit = [args[0],]
+                    inherit = (args[0],)
             slots = args[0]
 
         if isinstance(slots, str):
@@ -147,8 +147,7 @@ class _JsxnFactory:
             if name in _cache:
                 og = _cache[name]
                 cls = type(name, (og,cls), {'__slots__':og.__slots__})
-            _cache._generate(name, cls)
-            return cls
+            return _cache._generate(name, cls)
 
         # If a string is passed in use that as the name.
         if isinstance(arg, str):
