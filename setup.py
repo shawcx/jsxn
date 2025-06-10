@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name             = 'jsxn',
-    version          = '0.2',
+    version          = '0.3',
     author           = 'Matthew Shaw',
     author_email     = 'mshaw.cx@gmail.com',
     license          = 'MIT',
