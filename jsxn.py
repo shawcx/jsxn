@@ -29,6 +29,19 @@ import json
 __all__ = ['jsxn']
 
 
+# Collect the fields of a jsxn class, including those declared by the classes
+# it derives from, base classes first.
+@functools.cache
+def _fields(cls):
+    fields = {}
+    for klass in reversed(cls.__mro__):
+        slots = vars(klass).get('__slots__', ())
+        if isinstance(slots, str):
+            slots = (slots,)
+        fields.update(dict.fromkeys(slots))
+    return tuple(fields)
+
+
 class _Jsxn:
     # Required for the derived class to be also be slotted
     __slots__ = []
@@ -37,7 +50,7 @@ class _Jsxn:
         # Call the instance with the passed arguments.
         self(*args, **kwds)
         # Support partial initialization by setting undefined fields to null.
-        for attr in self.__slots__:
+        for attr in _fields(type(self)):
             if not hasattr(self, attr):
                 setattr(self, attr, None)
 
@@ -78,15 +91,31 @@ class _Jsxn:
 
     def __iter__(self):
         # This is for passing jsxn instances to the dict constructor.
-        for attr in self.__slots__:
+        for attr in _fields(type(self)):
             yield((attr, getattr(self, attr)))
 
     def __len__(self):
-        return len(self.__slots__)
+        return len(_fields(type(self)))
 
     def __str__(self):
         # Use JSON for string representations of the jsxn instance.
         return json.dumps(dict(self))
+
+
+# A class without __slots__ gives its instances a __dict__, and so would every
+# class derived from it. Rebuild such a class with empty slots so the generated
+# jsxn class only accepts its declared attributes. Class attributes stay put.
+def _slotted(cls):
+    if '__slots__' in vars(cls):
+        return cls
+    namespace = {
+        key : value
+        for key,value in vars(cls).items()
+        if key not in ('__dict__', '__weakref__')
+        }
+    namespace['__slots__']    = ()
+    namespace['__qualname__'] = cls.__qualname__
+    return type(cls)(cls.__name__, cls.__bases__, namespace)
 
 
 # The _Cache class is used to hold the generated classes. It is defined outside
@@ -107,9 +136,9 @@ class _Cache(dict):
         elif len(args) == 1:
             if isinstance(args[0], type):
                 if not issubclass(args[0], _Jsxn):
-                    inherit = (args[0],_Jsxn)
+                    inherit = (_slotted(args[0]),_Jsxn)
                 else:
-                    inherit = (args[0],)
+                    inherit = (_slotted(args[0]),)
             slots = args[0]
         else:
             raise ValueError('Only one unnamed argument can be passed')
@@ -124,6 +153,16 @@ class _Cache(dict):
         # Use dictionary keys
         if isinstance(slots, dict):
             slots = tuple(slots.keys())
+        # Use only the fields a class declares itself, inherited fields come
+        # from its base classes
+        elif isinstance(slots, type):
+            if '__slots__' in vars(slots):
+                slots = vars(slots)['__slots__']
+            else:
+                slots = tuple(inspect.get_annotations(slots).keys())
+        # Use the fields of an existing jsxn instance
+        elif isinstance(slots, _Jsxn):
+            slots = _fields(type(slots))
         # Else use existing slots
         elif hasattr(slots, '__slots__'):
             slots = slots.__slots__
@@ -160,7 +199,7 @@ class _JsxnFactory:
         def inject(name, cls):
             if name in _cache:
                 og = _cache[name]
-                cls = type(name, (og,cls), {'__slots__':og.__slots__})
+                cls = type(name, (og,_slotted(cls)), {'__slots__':()})
             return _cache._generate(name, cls)
 
         # If a string is passed in use that as the name.
