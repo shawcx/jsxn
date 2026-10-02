@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-jsxn is a single-module Python library (`jsxn.py`, no dependencies) that generates slotted classes from a JSON schema-by-example, for REST APIs returning lists of same-shaped objects. Packaged with `setup.py` (`py_modules=['jsxn']`); the version lives there. `README.md` is the user-facing usage doc and is also the PyPI long description.
+jsxn is a single-module Python library (`jsxn.py`, no dependencies) that generates slotted classes from a JSON schema-by-example, for REST APIs returning lists of same-shaped objects. Packaged via `pyproject.toml` (setuptools backend, `py-modules = ["jsxn"]`, Python >= 3.10); the version lives there. `README.md` is the user-facing usage doc and is also the PyPI long description.
 
 ## Commands
 
 - Install for development: `pip install -e .`
-- Build: `python3 setup.py sdist bdist_wheel`
+- Build sdist and wheel: `pyproject-build` (Homebrew `python-build`); a wheel alone: `python3 -m pip wheel . --no-deps -w dist`
 - Run tests (stdlib `unittest`, no dependencies): `python3 -m unittest -v`
 - Run one test: `python3 -m unittest tests.test_jsxn.TestSubclass.test_inherited_fields`
 - Tests clear the global `_cache` in `setUp`/`tearDown`; keep that in any new test class (subclass `JsxnTestCase`).
