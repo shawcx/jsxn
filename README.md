@@ -1,10 +1,13 @@
 jsxn
 ====
 
-jsxn is a Python library for JSON objects that use a strict schema. Designed for use with REST APIs that return lists of objects that all have the same attributes.
+jsxn is a Python library for JSON objects that use a strict schema. Designed
+for use with REST APIs that return lists of objects that all have the same
+attributes.
 
-The jsxn object will pragmatically generate a Python class based on a JSON string, Python dictionary, keyword arguments, or an iterable collection of attribute names.
-
+The jsxn object will pragmatically generate a Python class based on a JSON
+string, Python dictionary, keyword arguments, or an iterable collection of
+attribute names.
 
 ```python
 from jsxn import jsxn
@@ -75,9 +78,9 @@ from jsxn import jsxn
 
 @jsxn
 class example1:
-    first : str
+    first  : str
     second : int
-    third : dict
+    third  : dict
 
 @jsxn
 class example2:
@@ -88,7 +91,8 @@ class example2:
         ]
 ```
 
-jsxn supports binding classes to generated types. This allows the creation of helper functions to perform actions with the underlying data.
+jsxn supports binding classes to generated types. This allows the creation of
+helper functions to perform actions with the underlying data.
 
 ```python
 from jsxn import jsxn
